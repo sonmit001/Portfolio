@@ -6,7 +6,7 @@
 ## OAuthAuthResponse
 - 인증 결과를 표준화된 Response 객체로 반환하여
   서비스 레이어와 호출부의 결합도를 최소화
-## External Workflow Management Service
+## SFMCJourneyService
 
 ### Purpose
 - 외부 마케팅/워크플로우 시스템의 정의(JSON)를 Salesforce Apex에서 관리
