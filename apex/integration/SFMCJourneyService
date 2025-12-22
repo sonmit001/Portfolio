@@ -1,0 +1,131 @@
+/**
+ * @title SFMC Journey Management Service
+ * @description
+ * Salesforce Marketing Cloud(SFMC) Journey Builder REST API를 활용하여
+ * Journey 조회, 복제, 수정, 스케줄 적용 및 삭제 기능을 제공하는 서비스 클래스.
+ *
+ * - OAuth 인증 토큰 기반 REST 통신
+ * - 대용량 Journey 페이징 조회
+ * - Journey Deep Clone (Activity / Transition ID 재매핑 포함)
+ * - Entry Event 스케줄 추출 및 재적용
+ * - 실무 환경에서 발생하는 API 제약 사항 대응
+ *
+ * @author Portfolio Sample
+ * @lastModified 2025-11
+ */
+public with sharing class SFMCJourneyService {
+
+    /* ============================================================
+     * Constants
+     * ============================================================ */
+
+    private static final Integer TIMEOUT_MS = 120000; // Salesforce HTTP 최대 Timeout
+    private static final String JOURNEY_ENDPOINT = '/interaction/v1/interactions';
+    private static final String EVENT_DEFINITION_ENDPOINT = '/interaction/v1/eventDefinitions';
+    private static final Integer DEFAULT_PAGE_SIZE = 50;
+    private static final Integer MAX_PAGE_NUMBER = 50;
+
+    /* ============================================================
+     * Public APIs
+     * ============================================================ */
+
+    /**
+     * 모든 Journey 목록 조회 (페이징 처리)
+     */
+    public static List<SFMCJourneyResponse> getAllJourneys(String connectionName) {
+        validateConnection(connectionName);
+
+        SFMCAuthResponse auth = authenticate(connectionName);
+        List<SFMCJourneyResponse> result = new List<SFMCJourneyResponse>();
+
+        Integer page = 1;
+        while (true) {
+            List<SFMCJourneyResponse> pageItems =
+                fetchJourneys(auth, page, DEFAULT_PAGE_SIZE);
+
+            if (pageItems.isEmpty()) break;
+            result.addAll(pageItems);
+
+            if (pageItems.size() < DEFAULT_PAGE_SIZE) break;
+            if (++page > MAX_PAGE_NUMBER) {
+                throw new SFMCJourneyException('Journey page limit exceeded.');
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Journey Audit Log 조회
+     */
+    public static String getJourneyAuditLog(
+        String connectionName,
+        String journeyId,
+        String action
+    ) {
+        validateConnection(connectionName);
+        validateJourneyId(journeyId);
+
+        if (String.isBlank(action)) {
+            throw new SFMCJourneyException('Audit action is required.');
+        }
+
+        SFMCAuthResponse auth = authenticate(connectionName);
+        return fetchJourneyAuditLog(auth, journeyId, action);
+    }
+
+    /**
+     * Journey 복제 (스케줄 복제 옵션 포함)
+     */
+    public static SFMCJourneyResponse cloneJourney(
+        String connectionName,
+        String journeyId,
+        String newName,
+        String newDescription,
+        Boolean cloneSchedule
+    ) {
+        validateConnection(connectionName);
+        validateJourneyId(journeyId);
+
+        SFMCAuthResponse auth = authenticate(connectionName);
+        Map<String, Object> original = fetchJourneyDefinitionMap(auth, journeyId);
+
+        // Deep Copy
+        Map<String, Object> clone =
+            (Map<String, Object>) JSON.deserializeUntyped(JSON.serialize(original));
+
+        removeServerManagedFields(clone);
+        applyBasicCloneInfo(clone, original, newName, newDescription);
+
+        // Activity / Transition ID 재매핑
+        String validationMessage = remapActivitiesAndTransitions(clone);
+
+        if (cloneSchedule == null || !cloneSchedule) {
+            removeSchedule(clone);
+        }
+
+        clone.remove('goals');
+        clone.remove('exits');
+
+        Map<String, Object> created =
+            createJourney(auth, clone);
+
+        SFMCJourneyResponse response = parseJourneyItem(created);
+        response.validationMessage = validationMessage;
+        return response;
+    }
+
+    /**
+     * Journey 메타 정보 업데이트 (이름, 설명, 태그)
+     */
+    public static SFMCJourneyResponse updateJourney(
+        String connectionName,
+        String journeyId,
+        String newName,
+        String newDescription,
+        String tags
+    ) {
+        validateConnection(connectionName);
+        validateJourneyId(journeyId);
+
+        SFMCAuthResponse auth = authenticate(connectionName);
+        Map<String, Object> journey = fet
