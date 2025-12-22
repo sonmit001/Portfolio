@@ -1,0 +1,71 @@
+/**
+ * @description OAuth Authentication Response Wrapper (Portfolio Version)
+ * @last update 2025-11-25
+ * @tester class OAuthAuthResponseTest
+ */
+public class OAuthAuthResponse {
+
+    private static final Boolean IS_DEBUG_MODE = false;
+
+    /* ================================
+     * Core Fields
+     * ================================ */
+
+    public Boolean isSuccess { get; set; }
+
+    public String accessToken { get; set; }
+
+    public Integer expiresIn { get; set; }
+
+    public String apiBaseUrl { get; set; }
+
+    public String message { get; set; }
+
+    public String errorMessage { get; set; }
+
+    /* ================================
+     * Constructors
+     * ================================ */
+
+    /**
+     * @description Success response constructor
+     */
+    public OAuthAuthResponse(
+        Boolean isSuccess,
+        String accessToken,
+        Integer expiresIn,
+        String apiBaseUrl,
+        String message
+    ) {
+        this.isSuccess = isSuccess;
+        this.accessToken = accessToken;
+        this.expiresIn = expiresIn;
+        this.apiBaseUrl = apiBaseUrl;
+        this.message = message;
+    }
+
+    /**
+     * @description Failure response constructor
+     */
+    public OAuthAuthResponse(Boolean isSuccess, String errorMessage) {
+        this.isSuccess = isSuccess;
+        this.errorMessage = errorMessage;
+    }
+
+    /**
+     * @description Default constructor
+     */
+    public OAuthAuthResponse() {
+        this.isSuccess = false;
+    }
+
+    /* ================================
+     * Debug
+     * ================================ */
+
+    private static void debug(LoggingLevel level, String msg) {
+        if (IS_DEBUG_MODE) {
+            System.debug(level, msg);
+        }
+    }
+}
