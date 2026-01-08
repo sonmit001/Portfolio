@@ -1,0 +1,101 @@
+<apex:page controller="SampleFormController"
+           showHeader="false"
+           sidebar="false"
+           standardStylesheets="false">
+
+    <head>
+        <script>
+            let isSubmitting = false;
+
+            function showLoading(msg) {
+                document.getElementById('overlay').style.display = 'block';
+                document.getElementById('loadingMsg').innerText = msg || 'Processing...';
+            }
+
+            function hideLoading() {
+                document.getElementById('overlay').style.display = 'none';
+                isSubmitting = false;
+            }
+
+            function resizeImage(file, maxW, maxH, quality, callback) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let { width, height } = img;
+                        const scale = Math.min(maxW / width, maxH / height, 1);
+                        width *= scale;
+                        height *= scale;
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+
+                        const base64 = canvas.toDataURL('image/jpeg', quality).split(',')[1];
+                        callback(base64);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            function uploadSequential(files, index) {
+                if (index >= files.length) {
+                    // TODO: Apex RemoteAction - update record
+                    hideLoading();
+                    alert('Submission completed');
+                    return;
+                }
+
+                resizeImage(files[index], 1920, 1920, 0.7, function(base64) {
+                    // TODO: Apex RemoteAction - upload file only
+                    setTimeout(() => uploadSequential(files, index + 1), 100);
+                });
+            }
+
+            function submitForm() {
+                if (isSubmitting) return;
+                isSubmitting = true;
+
+                const fileInput = document.getElementById('fileInput');
+                if (!fileInput.files.length) {
+                    alert('Please select a file');
+                    isSubmitting = false;
+                    return;
+                }
+
+                showLoading('Uploading files...');
+                uploadSequential(fileInput.files, 0);
+            }
+        </script>
+
+        <style>
+            body { background:#f5f5f5; font-family: Arial; }
+            .container { background:#fff; padding:40px; margin:40px auto; max-width:700px; border-radius:12px; }
+            button { width:100%; height:80px; font-size:24px; }
+            #overlay {
+                display:none; position:fixed; inset:0;
+                background:rgba(0,0,0,.6); color:#fff;
+                display:flex; align-items:center; justify-content:center;
+                font-size:24px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="overlay">
+            <div id="loadingMsg">Processing...</div>
+        </div>
+
+        <div class="container">
+            <h1>Sample File Upload Form</h1>
+            <p>This page demonstrates client-side image resizing and sequential upload.</p>
+
+            <input type="file" id="fileInput" multiple accept="image/*"/>
+
+            <br/><br/>
+            <button onclick="submitForm()">Submit</button>
+        </div>
+    </body>
+</apex:page>
