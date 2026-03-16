@@ -4,7 +4,8 @@
 ## SlackIntegration.cls
 - Slack 메시지 전송
 - payload 작성 https://docs.slack.dev/reference/interaction-payloads/block_actions-payload/
-- 기본 구
+- 기본 구조
+  
   <img width="775" height="1120" alt="Image" src="https://github.com/user-attachments/assets/7a5be410-ec7b-403c-ab8b-35be596d4fe6" />
 
 ## SlackIntegration.cls
