@@ -1,0 +1,128 @@
+<template>
+    <div class="form-wrapper">
+
+        <!-- 고지문 -->
+        <div class="notice-box">
+            <p class="notice-greeting">안녕하세요! 😊</p>
+            <p class="notice-text">
+                원활한 문의 응대, 미팅 일정 조율 및 자료 전달을 위하여 아래와 같이 개인정보를 수집·이용하고자 합니다.
+            </p>
+            <ul class="notice-list">
+                <li>
+                    <span class="notice-label">수집 항목</span>
+                    회사명, 성명, 직함, 이메일 주소, 연락처
+                </li>
+                <li>
+                    <span class="notice-label">수집·이용 목적</span>
+                    문의 응대, 미팅 일정 조율, 자료 발송
+                </li>
+                 <li>
+                    <span class="notice-label">보유 및 이용 기간</span>
+                    수집·이용 목적 달성 시까지 또는 관련 법령에 따른 보존 기간까지
+                </li>
+                <li>
+                    ※ 귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있습니다. 다만, 동의를 거부하실 경우 문의 응대, 미팅 일정 조율, 자료 발송에 제한이 있을 수 있습니다.
+위 개인정보 수집·이용에 동의하시는 경우 아래 정보를 기재해 주시기 바랍니다.
+                </li>
+            </ul>
+        </div>
+
+        <!-- 마케팅 동의 -->
+        <div class="marketing-box">
+            <p class="marketing-title">개인정보 수집·이용 동의 여부</p>
+            <div class="radio-group">
+                <label class="radio-item">
+                    <input type="radio"
+                           name="marketing"
+                           value="agree"
+                           checked={isAgree}
+                           onchange={handleMarketingChange}
+                           disabled={readOnly} />
+                    <span>동의</span>
+                </label>
+                <label class="radio-item">
+                    <input type="radio"
+                           name="marketing"
+                           value="disagree"
+                           checked={isDisagree}
+                           onchange={handleMarketingChange}
+                           disabled={readOnly} />
+                    <span>미동의</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- 입력 필드 -->
+        <div class="form-fields">
+
+            <div class="field-row">
+                <label class="field-label">
+                    회사명 <span class="required">*</span>
+                </label>
+                <input type="text"
+                       class="field-input"
+                       placeholder="디센트릭"
+                       value={company}
+                       data-field="company"
+                       onchange={handleInput}
+                       disabled={readOnly} />
+            </div>
+            <div class="field-row">
+                <label class="field-label">
+                    성함 <span class="required">*</span>
+                </label>
+                <input type="text"
+                       class="field-input"
+                       placeholder="홍길동"
+                       value={name}
+                       data-field="name"
+                       onchange={handleInput}
+                       disabled={readOnly} />
+            </div>
+
+            <div class="field-row">
+                <label class="field-label">
+                    직함 <span class="required">*</span>
+                </label>
+                <input type="text"
+                       class="field-input"
+                       placeholder="대리"
+                       value={title}
+                       data-field="name"
+                       onchange={handleInput}
+                       disabled={readOnly} />
+            </div>
+            
+
+            <div class="field-row">
+                <label class="field-label">
+                    이메일 주소 <span class="required">*</span>
+                </label>
+                <input type="email"
+                       class="field-input"
+                       placeholder="example@company.com"
+                       value={email}
+                       data-field="email"
+                       onchange={handleInput}
+                       disabled={readOnly} />
+            </div>
+
+            <div class="field-row">
+                <label class="field-label">
+                    연락처 <span class="required">*</span>
+                </label>
+                <input type="tel"
+                       class="field-input"
+                       placeholder="010-0000-0000"
+                       value={phone}
+                       data-field="phone"
+                       onchange={handleInput}
+                       disabled={readOnly} />
+            </div>
+
+        </div>
+        <!-- Standard Submit 버튼은 Agent 플래너가 자동 추가 -->
+    </div>
+</template>
