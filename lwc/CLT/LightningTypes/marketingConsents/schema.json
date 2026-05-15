@@ -1,0 +1,5 @@
+{
+    "description": "마케팅 수신 동의 데이터",
+    "lightning:type": "@apexClassType/c__MarketingConsentController$MarketingConsentData",
+    "title": "marketingConsents"
+}
